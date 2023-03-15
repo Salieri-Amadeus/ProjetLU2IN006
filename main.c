@@ -1,4 +1,4 @@
-#include "listC.c"
+#include "hash.c"
 
 int main(){
     List* list = initList();
@@ -22,4 +22,6 @@ int main(){
     cp("test2.txt", "test.txt");
 
     blobFile("listC.c");
+    blobFile("hash.c");
+    blobFile("main.c");
 }
