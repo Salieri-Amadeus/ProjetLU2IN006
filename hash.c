@@ -1,11 +1,23 @@
 #include "listC.c"
 
+
 int hashfile(char* source, char* dest) {
     char cmd[1000];
     sprintf(cmd, "cat %s | openssl sha256 > %s", source, dest);
     system(cmd);
     return 0;
 }
+
+// char* sha256file(char* file){
+//     system("touch tmp");
+//     hashfile(file, "tmp");
+//     FILE* f = fopen("tmp", "r");
+//     char* hash = malloc(1000 * sizeof(char));
+//     fscanf(f, "%s", hash);
+//     fclose(f);
+//     system("rm -rf tmp");
+//     return hash;
+// }
 
 char* sha256file(char* file) {
     FILE* f;
