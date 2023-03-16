@@ -90,3 +90,7 @@ void blobFile(char* file){
     free(hash);
     free(path);
 }
+// Path: main.c 
+// #include "hash.c"
+
+// int main(int argc, char** argv){
