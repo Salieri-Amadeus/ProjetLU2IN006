@@ -36,6 +36,10 @@ int main(void) {
     appendWorkTree(wt, "file3.txt", "hash3", 755);
     appendWorkTree(wt, "file4.txt", "hash4", 444);
 
+    WorkFile* w1 = createWorkFile("listC.c");
+    w1->hash = sha256file("listC.c");
+    w1->mode = getChmod("listC.c");
+
     // 将WorkTree保存到文件
     wttf(wt, "worktree.txt");
 
@@ -45,5 +49,10 @@ int main(void) {
     // 打印两个WorkTree
     printf("WorkTree 1:\n%s\n", wtts(wt));
     printf("WorkTree 2:\n%s\n", wtts(wt2));
+
+    blobWorkTree(wt2);
+    printf("%d\n", isDirectory("."));
+    printf("%d\n", isDirectory(w1));
     return 0;
 }
+
