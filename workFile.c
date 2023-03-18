@@ -165,6 +165,48 @@ char* blobWorkTree(WorkTree* wt){
     return hash;
 }
 
+WorkTree* dirtoWt(char* path){
+    DIR* dp = opendir(path);
+    struct dirent *ep;
+    char* hash;
+    int chmod;
+    char* name;
+    size_t path_len = strlen(path);
+
+    if(dp == NULL){
+        printf("Erreur d'ouverture\n");
+        exit(1);
+    }
+
+    if (path_len > 0 && path[path_len - 1] != '/') {
+        path = realloc(path, path_len + 2);
+        path[path_len] = '/';
+        path[path_len + 1] = '\0';
+    }
+
+    WorkTree* wt = initWorkTree();
+
+    while((ep = readdir(dp)) != NULL){
+        name = malloc(sizeof(char) * (path_len + strlen(ep->d_name) + 1));
+        strcpy(name, path);
+        strcat(name, ep->d_name);
+
+        if(ep->d_type == DT_REG){
+            hash = sha256file(name);
+        }
+        else{
+            hash = NULL;
+        }
+        chmod = getChmod(name);
+        appendWorkTree(wt, ep->d_name, hash, chmod);
+        free(name);
+    }
+
+    closedir(dp);
+    return wt;
+}
+
+
 char* saveWorkTree(WorkTree* wt, char* path){
     for(int i = 0; i < wt->n; i++){
         if(wt->tab[i].hash != NULL){

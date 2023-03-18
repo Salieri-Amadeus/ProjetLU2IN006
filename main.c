@@ -51,8 +51,11 @@ int main(void) {
     printf("WorkTree 2:\n%s\n", wtts(wt2));
 
     blobWorkTree(wt2);
-    printf("%d\n", isDirectory("."));
-    printf("%d\n", isDirectory(w1));
+
+    WorkTree* test = dirtoWt("workTreeTest");
+    wttf(test, "worktreeTest.txt");
+
+
     return 0;
 }
 
