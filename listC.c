@@ -107,18 +107,43 @@ List* ftol(char* path){
     return stol(s);
 }
 
-List * listdir(char * rootdir){
-    DIR* dp = opendir(rootdir);
-    struct dirent *ep;
-    List* list = initList();
-    if(dp == NULL){
-        printf("Erreur d'ouverture\n");
-        exit(1);
+// List * listdir(char * rootdir){
+//     DIR* dp = opendir(rootdir);
+//     struct dirent *ep;
+//     List* list = initList();
+//     if(dp == NULL){
+//         printf("Erreur d'ouverture\n");
+//         exit(1);
+//     }
+//     while((ep = readdir(dp)) != NULL){
+//         Cell* cell = buildCell(ep->d_name);
+//         insertFirst(list, cell);
+//     }
+//     closedir(dp);
+//     return list;
+// }
+
+List* listdir(char* root_dir) {
+    DIR* dp;
+    struct dirent* ep;
+    List* L = initList();
+    *L = NULL;
+    Cell* temp_cell;
+    dp = opendir(root_dir);
+    if (dp != NULL) {
+        while ((ep = readdir(dp)) != NULL) {
+            temp_cell = buildCell(ep->d_name);
+            insertFirst(L, temp_cell);
+            List ptr = *L;
+            while (ptr != NULL) {
+                ptr = ptr->next;
+            }
+        }
+        (void)closedir(dp);
+    } else {
+        perror("Couldn't open the directory");
+        return NULL;
     }
-    while((ep = readdir(dp)) != NULL){
-        Cell* cell = buildCell(ep->d_name);
-        insertFirst(list, cell);
-    }
-    closedir(dp);
-    return list;
+    return L;
 }
+

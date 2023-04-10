@@ -1,4 +1,5 @@
 #include "listC.c"
+#include <sys/stat.h>
 
 
 int hashfile(char* source, char* dest) {
@@ -38,14 +39,20 @@ char* sha256file(char* file) {
     return buffer;
 }
 
+struct stat st = {0};
+
 int fileExists(char* file){
-    List* list = listdir(".");
-    Cell* cell = searchList(list, file);
-    if(cell == NULL){
-        return 0;
-    }
-    return 1;
+    struct stat buffer;
+    return (stat(file, &buffer) == 0);
 }
+// int fileExists(char* file){
+//     List* list = listdir(".");
+//     Cell* cell = searchList(list, file);
+//     if(cell == NULL){
+//         return 0;
+//     }
+//     return 1;
+// }
 
 void cp(char *to, char *from){
     if(fileExists(from) == 0){
@@ -84,21 +91,34 @@ char* hashToPath(char* hash){
     return path;  
 }
 
-void blobFile(char* file){
+// void blobFile(char* file){
+//     char* hash = sha256file(file);
+//     char* path = malloc((strlen(hash) + 1 + 4) * sizeof(char));
+//     strcat(path, "git/");
+//     strcat(path, hashToPath(hash));
+//     char* dir = malloc(2 * sizeof(char));
+//     strncpy(dir, hash, 2);
+//     char cmd[1000];
+
+//     if(fileExists(path) == 0){
+//         sprintf(cmd, "mkdir -p git/%s", dir);
+//         system(cmd);
+//         cp(path, file);
+//     }
+
+//     free(hash);
+//     free(path);
+// }
+
+void blobFile(char* file) {
     char* hash = sha256file(file);
-    char* path = malloc((strlen(hash) + 1 + 4) * sizeof(char));
-    strcat(path, "git/");
-    strcat(path, hashToPath(hash));
-    char* dir = malloc(2 * sizeof(char));
-    strncpy(dir, hash, 2);
-    char cmd[1000];
-
-    if(fileExists(path) == 0){
-        sprintf(cmd, "mkdir -p git/%s", dir);
-        system(cmd);
-        cp(path, file);
+    char* ch2 = strdup(hash);
+    ch2[2] = '\0';
+    if (!fileExists(ch2)) {
+        char buff[100];
+        sprintf(buff, "mkdir %s", ch2);
+        system(buff);
     }
-
-    free(hash);
-    free(path);
+    char* ch = hashToPath(hash);
+    cp(ch, file);
 }

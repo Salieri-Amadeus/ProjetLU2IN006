@@ -28,34 +28,19 @@
 // }
 
 // Projet 2
-int main(void) {
-    // 创建一个WorkTree，添加一些WorkFile
+int main() {
+    printf("abc\n");
+    
     WorkTree* wt = initWorkTree();
-    appendWorkTree(wt, "file1.txt", "hash1", 644);
-    appendWorkTree(wt, "file2.txt", "hash2", 600);
-    appendWorkTree(wt, "file3.txt", "hash3", 755);
-    appendWorkTree(wt, "file4.txt", "hash4", 444);
 
-    WorkFile* w1 = createWorkFile("listC.c");
-    w1->hash = sha256file("listC.c");
-    w1->mode = getChmod("listC.c");
+    printf("abc\n");
+    appendWorkTree(wt, "test.txt", NULL, 0);
+    appendWorkTree(wt, "test2.txt", NULL, 0);
+    appendWorkTree(wt, "TestForWorkTree", NULL, 0);
 
-    // 将WorkTree保存到文件
-    wttf(wt, "worktree.txt");
+    printf("abc\n");
 
-    // 从文件中读取WorkTree
-    WorkTree* wt2 = ftwt("worktree.txt");
+    saveWorkTree(wt, "git");
 
-    // 打印两个WorkTree
-    printf("WorkTree 1:\n%s\n", wtts(wt));
-    printf("WorkTree 2:\n%s\n", wtts(wt2));
-
-    blobWorkTree(wt2);
-
-    WorkTree* test = dirtoWt("workTreeTest");
-    wttf(test, "worktreeTest.txt");
-
-
-    return 0;
 }
 
