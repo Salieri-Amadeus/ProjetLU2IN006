@@ -29,18 +29,16 @@
 
 // Projet 2
 int main() {
-    printf("abc\n");
     
     WorkTree* wt = initWorkTree();
 
-    printf("abc\n");
     appendWorkTree(wt, "test.txt", NULL, 0);
     appendWorkTree(wt, "test2.txt", NULL, 0);
     appendWorkTree(wt, "TestForWorkTree", NULL, 0);
 
-    printf("abc\n");
-
     saveWorkTree(wt, "git");
+    system("echo abcd > git/test.txt");
+    restoreWorkTree(wt, "git");
 
 }
 
