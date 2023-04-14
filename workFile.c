@@ -382,31 +382,60 @@ char* saveWorkTree(WorkTree* wt, char* path){ // 答案
     return blobWorkTree(wt);
 }
 
-//这个函数的功能是释放一个WorkTree数据结构及其内部成员所占用的内存空间。
-void freeWorkTree(WorkTree* wt) {
-    if (wt == NULL) {
-        return;
-    }
-    for (int i = 0; i < wt->n; i++) {
-        free(wt->tab[i].name);
-        free(wt->tab[i].hash);
-    }
-    free(wt->tab);
-    free(wt);
+// //这个函数的功能是释放一个WorkTree数据结构及其内部成员所占用的内存空间。
+// void freeWorkTree(WorkTree* wt) {
+//     if (wt == NULL) {
+//         return;
+//     }
+//     for (int i = 0; i < wt->n; i++) {
+//         free(wt->tab[i].name);
+//         free(wt->tab[i].hash);
+//     }
+//     free(wt->tab);
+//     free(wt);
+// }
+
+// //判断一个哈希值是不是一个worktree
+// int isWorkTreeHash(char* hash) {
+//     char* path = hashToPath(hash);
+//     if(!isFile(path)) {
+//         return 0;
+//     }
+//     WorkTree* wt = ftwt(path);
+//     if(wt == NULL) {
+//         return 0;
+//     }
+//     freeWorkTree(wt);
+//     return 1;
+// }
+
+int isWorkTree(char* hash) { // 答案
+  if (fileExists(strcat(hashToPath(hash), ".t"))) {
+    return 1;
+  }
+  if (fileExists(hashToPath(hash))) {
+    return 0;
+  }
+  return -1;
 }
 
-//判断一个哈希值是不是一个worktree
-int isWorkTreeHash(char* hash) {
-    char* path = hashToPath(hash);
-    if(!isFile(path)) {
-        return 0;
+void restoreWorkTree(WorkTree* wt, char* path) { // 答案
+  for (int i = 0; i < wt->n; i++) {
+    char* absPath = concat_paths(path, wt->tab[i].name);
+    char* copyPath = hashToPath(wt->tab[i].hash);
+    char* hash = wt->tab[i].hash;
+    if (isWorkTree(hash) == 0) { // si c’est un fichier
+      cp(absPath, copyPath);
+      setMode(getChmod(copyPath), absPath);
+    } else {
+      if (isWorkTree(hash) == 1) { // si c’est un repertoire
+        strcat(copyPath, ".t");
+        WorkTree* nwt = ftwt(copyPath);
+        restoreWorkTree(nwt, absPath);
+        setMode(getChmod(copyPath), absPath);
+      }
     }
-    WorkTree* wt = ftwt(path);
-    if(wt == NULL) {
-        return 0;
-    }
-    freeWorkTree(wt);
-    return 1;
+  }
 }
 
 
