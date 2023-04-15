@@ -170,6 +170,7 @@ char* blobCommit(Commit* c) {
     ch[strlen(ch) - 1] = '\0'; // 去掉文件名末尾的换行符
     strcat(ch, ".c");
     cp(ch, fname); // 将文件复制到以哈希值命名的文件中
+    hash[strlen(hash) - 1] = '\0'; // 去掉哈希值末尾的换行符
     return hash; // 返回哈希值
 }
 
@@ -185,13 +186,27 @@ void initRefs() {
 
 // 创建或更新 Git 仓库中的引用
 void createUpdateRef(char* ref_name, char* hash) {
-    char buff[100];
-    char* hash_buff = strtok(hash, "\n"); 
-    sprintf(buff, "echo %s > .refs/%s", hash_buff, ref_name); // 将哈希值写入 .refs/ref_name 文件中
-    system(buff);
-    // char buff2[100];
-    // sprintf(buff2, "echo \n >> .refs/%s", ref_name);
-    // system(buff2);
+    // char buff[100];
+    // char* hash_buff = strtok(hash, "\n"); 
+    // sprintf(buff, "echo -n %s > .refs/%s", hash_buff, ref_name); // 将哈希值写入 .refs/ref_name 文件中
+    // system(buff);
+    FILE* fp;
+    char buff[256];
+    char buff2[256];
+    char filePos[256];
+    sprintf(filePos, ".refs/%s", ref_name); // 构造引用文件的路径
+    if(fileExists(filePos)) { // 如果引用文件已经存在，则删除该文件
+        sprintf(buff, "rm .refs/%s", ref_name);
+        system(buff);
+    }
+    sprintf(buff2,"touch .refs/%s", ref_name); // 创建引用文件
+    system(buff2);
+
+    fp = fopen(filePos, "w"); // 打开引用文件
+    if (fp != NULL) {
+        fputs(hash, fp); // 将哈希值写入引用文件
+        fclose(fp);
+    }
 
 }
 
@@ -292,9 +307,9 @@ void myGitCommit(char* branch_name, char* message) {
     }
     
     char* hashc = blobCommit(c);
+
     createUpdateRef(branch_name, hashc);
     createUpdateRef("HEAD", hashc);
-    printf("commit %s\n", hashc);
     system("rm .add");
 }
 

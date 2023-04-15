@@ -263,10 +263,13 @@ char* blobWorkTree(WorkTree* wt){ // 答案
     int fd = mkstemp(fname);
     wttf(wt, fname);
 
-    char* hash = sha256file(fname);
+    char* hash = strtok(sha256file(fname), "\n");
+    
     char* ch = hashToFile(hash);
+    
     strcat(ch, ".t");
     cp(ch, fname);
+    printf("blobWorkTree: %s\n", ch);
     return hash;
 }
 

@@ -92,7 +92,7 @@ List* getAllCommits() {
         Cell* cell = *list;
         while (cell != NULL) { // 遍历 commit 列表
             if (searchList(L, cell->data) == NULL) { // 如果 commit 不在列表中，则加入
-                insertFirst(&L, buildCell(cell->data));
+                insertFirst(L, buildCell(cell->data));
             }
             cell = cell->next;
         }
@@ -105,12 +105,18 @@ void restoreCommit(char* hash_commit) {
     // 获取 commit 对应文件路径
     char* commit_path = hashToPathCommit(hash_commit);
     // 通过 commit 文件路径获取对应的 commit 结构体
-    printf("Restoring commit %s", commit_path);
     Commit* c = ftc(commit_path);
     // 获取 commit 结构体中的 tree hash 值，再转换为 tree 文件路径
-    char* tree_hash = strcat(hashToPath(commitGet(c, "tree")), ".t");
+    char* tree_hash = hashToPath(commitGet(c, "tree"));
+    char tmp[100];
+    if(tree_hash[strlen(tree_hash) + 1] == '\0') {
+        strncpy(tmp, tree_hash, strlen(tree_hash));
+    }
+    char* hash_final = strcat(tmp, ".t");
+    printf("%s\n", hash_final);
+    hash_final[strlen(hash_final)] = '\0';
     // 通过 tree 文件路径获取 WorkTree 结构体
-    WorkTree* wt = ftwt(tree_hash);
+    WorkTree* wt = ftwt(hash_final);
     // 将 WorkTree 中的文件恢复到工作目录中
     restoreWorkTree(wt, ".");
 }
@@ -125,6 +131,7 @@ void myGitCheckoutBranch(char* branch) {
     char* hash_commit = getRef(branch);
     // 更新HEAD引用
     createUpdateRef("HEAD", hash_commit);
+
     // 恢复commit对应的work tree
     restoreCommit(hash_commit);
 }
