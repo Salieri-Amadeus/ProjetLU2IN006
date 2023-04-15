@@ -164,3 +164,14 @@ List* listdir(char* root_dir) {
     return L;
 }
 
+//这个函数的作用是将一个链表中的所有节点的数据打印出来。它接受一个指向链表头部的指针作为参数，并遍历整个链表，打印每个节点的数据。
+int listSize(List* L) {
+    List tmp = *L;
+    int i = 0;
+    while (tmp != NULL) {
+        i++;
+        tmp = tmp->next;
+    }
+    return i;
+}
+

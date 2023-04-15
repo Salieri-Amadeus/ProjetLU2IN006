@@ -187,8 +187,11 @@ void createUpdateRef(char* ref_name, char* hash) {
     char buff[100];
     char* hash_buff = strtok(hash, "\n"); 
     sprintf(buff, "echo %s > .refs/%s", hash_buff, ref_name); // 将哈希值写入 .refs/ref_name 文件中
-    printf("%s\n", buff);
     system(buff);
+    char buff2[100];
+    sprintf(buff2, "echo \n >> .refs/%s", ref_name);
+    system(buff2);
+
 }
 
 // 删除 Git 仓库中的引用

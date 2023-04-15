@@ -1,4 +1,4 @@
-#include "commit.c"
+#include "branch.c"
 
 // Projet 1
 // int main(){
@@ -48,6 +48,7 @@
 int main(int argc, char* argv[]) {
     if (strcmp(argv[1], "init") == 0) { // 如果第一个参数为 "init"
         initRefs(); // 初始化 .refs 目录
+        initBranch(); // 初始化第一个分支
     }
     else if (strcmp(argv[1], "refs-list") == 0) { // 如果第一个参数为 "refs-list"
         printf("REFS:\n");
@@ -91,6 +92,37 @@ int main(int argc, char* argv[]) {
             myGitCommit(argv[2], NULL); // 提交代码
         }
     }
+    else if (strcmp(argv[1], "get-current-branch") == 0) { // 如果第一个参数是"get-current-branch"
+        printf("%s", getCurrentBranch());
+    }
+
+    else if (strcmp(argv[1], "branch") == 0) { // 如果第一个参数是"branch"
+        if (!branchExists(argv[2])) { // 如果该分支不存在
+            createBranch(argv[2]); // 创建该分支
+        } else {
+            printf("The branch already exists."); // 分支已存在
+        }
+    }
+
+    else if (strcmp(argv[1], "branch-print") == 0) { // 如果第一个参数是"branch-print"
+        if (!branchExists(argv[2])) { // 如果该分支不存在
+            printf("The branch does not exist."); // 分支不存在
+        } else {
+            printBranch(argv[2]); // 打印该分支信息
+        }
+    }
+
+    else if (strcmp(argv[1], "checkout-branch") == 0) { // 如果第一个参数是"checkout-branch"
+        if (!branchExists(argv[2])) { // 如果该分支不存在
+            printf("The branch does not exist."); // 分支不存在
+        } else {
+            myGitCheckoutBranch(argv[2]); // 切换到该分支
+        }
+    }
+    else if(strcmp(argv[1], "checkout-commit") == 0) {
+        myGitCheckoutCommit(argv[2]);
+    }
+
     return 0;
 }
 
