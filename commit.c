@@ -1,6 +1,6 @@
 #include "workFile.c"
 
-#define Ncommit 100
+#define NcommitDefault 100
 #define N 500
 #define MESSAGE_SIZE 5000
 
@@ -47,7 +47,7 @@ kvp* stkv(char* str) {
 }
 
 // 初始化 Commit 结构体对象
-Commit* initCommit() {
+Commit* initCommit(int Ncommit) {
     Commit* c = malloc(sizeof(Commit)); // 分配内存
     c->T = malloc(Ncommit * sizeof(kvp*)); // 分配内存
     c->size = Ncommit; // 初始化 size 字段
@@ -81,7 +81,7 @@ void commitSet(Commit* c, char* key, char* value) {
 
 // 创建一个新的 Commit 结构体对象，并将一个名为 "tree" 的键值对添加到其中，该键值对的值为给定的哈希值
 Commit* createCommit(char* hash) {
-    Commit* c = initCommit(Ncommit); // 创建一个新的 Commit 结构体对象
+    Commit* c = initCommit(NcommitDefault); // 创建一个新的 Commit 结构体对象
     commitSet(c, "tree", hash); // 向 Commit 结构体对象中添加一个名为 "tree" 的键值对，值为给定的哈希值
     return c; // 返回新的 Commit 结构体对象
 }
@@ -174,7 +174,7 @@ char* blobCommit(Commit* c) {
 
 // 初始化 Git 仓库中的 .refs 目录和 .refs/master 和 .refs/HEAD 文件
 void initRefs() {
-    if (!file_exists(".refs")) { // 如果 .refs 目录不存在，则创建该目录
+    if (!fileExists(".refs")) { // 如果 .refs 目录不存在，则创建该目录
         system("mkdir .refs");
         // 创建 .refs/master 文件和 .refs/HEAD 文件，并设置其内容为空
         system("touch .refs/master");
@@ -207,7 +207,7 @@ char* getRef(char* ref_name) {
     char* result = malloc(sizeof(char) * 256);
     char buff[256];
     sprintf(buff, ".refs/%s", ref_name); // 构造引用文件的路径
-    if (!file_exists(buff)) { // 如果引用文件不存在，则输出一条错误信息
+    if (!fileExists(buff)) { // 如果引用文件不存在，则输出一条错误信息
         printf("The reference %s does not exist.", ref_name);
         return NULL;
     }
@@ -231,15 +231,15 @@ void createFile(char* file) {
 // 执行 git add 命令，将文件或文件夹加入索引区
 void myGitAdd(char* file_or_folder) {
     WorkTree* wt;
-    if (!file_exists(".add")) { // 判断索引文件是否存在
+    if (!fileExists(".add")) { // 判断索引文件是否存在
         createFile(".add"); // 创建索引文件
         wt = initWorkTree(); // 初始化工作树
     } else {
         wt = ftwt(".add"); // 从索引文件读取工作树信息
     }
 
-    if (file_exists(file_or_folder)) { // 判断需要添加的文件或文件夹是否存在
-        appendWorkTree(wt, file_or_folder, 0, NULL); // 将文件或文件夹添加到工作树
+    if (fileExists(file_or_folder)) { // 判断需要添加的文件或文件夹是否存在
+        appendWorkTree(wt, file_or_folder, NULL, 0); // 将文件或文件夹添加到工作树
         wttf(wt, ".add"); // 将工作树信息写入索引文件
     } else {
         printf("file or folder %s does not exist\n", file_or_folder);
@@ -249,7 +249,8 @@ void myGitAdd(char* file_or_folder) {
 // 执行git commit命令，将索引区的文件提交到当前分支
 void myGitCommit(char* branch_name, char* message) {
     // 检查是否已经初始化了项目的引用
-    if (!file_exists(".refs")) {
+    printf("mmmmmmmmm");
+    if (!fileExists(".refs")) {
         printf("Il faut d'abord initialiser les references du projet.");
         return;
     }
@@ -258,7 +259,7 @@ void myGitCommit(char* branch_name, char* message) {
     sprintf(buff, ".refs/%s", branch_name);
     
     // 检查分支是否存在
-    if (!file_exists(buff)) {
+    if (!fileExists(buff)) {
         printf("La branche n'existe pas.");
         return;
     }
@@ -286,8 +287,8 @@ void myGitCommit(char* branch_name, char* message) {
     }
     
     char* hashc = blobCommit(c);
-    createRef(branch_name, hashc);
-    createRef("HEAD", hashc);
+    createUpdateRef(branch_name, hashc);
+    createUpdateRef("HEAD", hashc);
     system("rm .add");
 }
 
