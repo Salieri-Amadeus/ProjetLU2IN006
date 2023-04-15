@@ -141,7 +141,7 @@ Commit* ftc(char* file) {
     char* all = malloc(sizeof(char) * MESSAGE_SIZE);
     FILE* f = fopen(file, "r");
     if (f == NULL) {
-        printf("ERROR: file does not exist\n");
+        printf("ERREUR: file does not exist\n");
         return NULL;
     }
     while (fgets(buff, N, f) != NULL) {
@@ -167,6 +167,7 @@ char* blobCommit(Commit* c) {
     ctf(c, fname); // 将 Commit 结构体对象写入文件
     char* hash = sha256file(fname); // 计算文件的 SHA256 哈希值
     char* ch = hashToFile(hash); // 将哈希值转换成文件名
+    ch[strlen(ch) - 1] = '\0'; // 去掉文件名末尾的换行符
     strcat(ch, ".c");
     cp(ch, fname); // 将文件复制到以哈希值命名的文件中
     return hash; // 返回哈希值
@@ -188,9 +189,9 @@ void createUpdateRef(char* ref_name, char* hash) {
     char* hash_buff = strtok(hash, "\n"); 
     sprintf(buff, "echo %s > .refs/%s", hash_buff, ref_name); // 将哈希值写入 .refs/ref_name 文件中
     system(buff);
-    char buff2[100];
-    sprintf(buff2, "echo \n >> .refs/%s", ref_name);
-    system(buff2);
+    // char buff2[100];
+    // sprintf(buff2, "echo \n >> .refs/%s", ref_name);
+    // system(buff2);
 
 }
 
