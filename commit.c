@@ -185,7 +185,9 @@ void initRefs() {
 // 创建或更新 Git 仓库中的引用
 void createUpdateRef(char* ref_name, char* hash) {
     char buff[100];
-    sprintf(buff, "echo %s > .refs/%s", hash, ref_name); // 将哈希值写入 .refs/ref_name 文件中
+    char* hash_buff = strtok(hash, "\n"); 
+    sprintf(buff, "echo %s > .refs/%s", hash_buff, ref_name); // 将哈希值写入 .refs/ref_name 文件中
+    printf("%s\n", buff);
     system(buff);
 }
 
@@ -249,7 +251,6 @@ void myGitAdd(char* file_or_folder) {
 // 执行git commit命令，将索引区的文件提交到当前分支
 void myGitCommit(char* branch_name, char* message) {
     // 检查是否已经初始化了项目的引用
-    printf("mmmmmmmmm");
     if (!fileExists(".refs")) {
         printf("Il faut d'abord initialiser les references du projet.");
         return;
@@ -289,6 +290,7 @@ void myGitCommit(char* branch_name, char* message) {
     char* hashc = blobCommit(c);
     createUpdateRef(branch_name, hashc);
     createUpdateRef("HEAD", hashc);
+    printf("commit %s\n", hashc);
     system("rm .add");
 }
 
