@@ -37,6 +37,8 @@ char* sha256file(char* file) {
     f = fdopen(fd, "r"); //fopen()接受文件名作为参数，而fdopen()接受文件描述符作为参数。
     fgets(buffer, 100, f);
     fclose(f);
+    if(buffer[strlen(buffer)-1] == '\n')
+        buffer[strlen(buffer)-1] = '\0';
 
     remove(fname);
 
@@ -63,33 +65,47 @@ int fileExists(char* file){
 
 
 //这个函数是在实现一个文件复制的功能。它会接收两个参数，to和from，表示要将from文件复制到to文件中。
-void cp(char *to, char *from){
-    if(fileExists(from) == 0){
-        printf("Le fichier n'existe pas\n");
-        exit(1);
-    }
-    if(fileExists(to) == 1){
-        char cmd[1000];
-        sprintf(cmd, "touch %s", to);
-        system(cmd);
-    }
-    FILE* src = fopen(from, "r");
-    FILE* dest = fopen(to, "w");
+// void cp(char *to, char *from){
+//     if(fileExists(from) == 0){
+//         printf("Le fichier n'existe pas\n");
+//         exit(1);
+//     }
+//     if(fileExists(to) == 1){
+//         char cmd[1000];
+//         sprintf(cmd, "touch %s", to);
+//         system(cmd);
+//     }
+//     FILE* src = fopen(from, "r");
+//     FILE* dest = fopen(to, "w");
+//     printf("to = %s, from = %s\n", to, from);
 
-    if(src == NULL || dest == NULL){
-        printf("Erreur d'ouverture\n");
-        exit(1);
+//     if(src == NULL || dest == NULL){
+//         printf("Erreur d'ouverture\n");
+//         exit(1);
+//     }
+
+//     char* s = malloc(1000 * sizeof(char));
+
+//     while(fgets(s, 1000, src) != NULL){
+//         fputs(s, dest);
+//     }
+
+//     fclose(src);
+//     fclose(dest);
+//     free(s);
+// }
+
+void cp(char* to, char* from) {
+    if (!fileExists(from)) return;
+    char* ligne = malloc(sizeof(char)*256);
+    FILE* ffrom = fopen(from, "r");
+    FILE* fto = fopen(to, "w");
+        
+    while(fgets(ligne,256, ffrom)!=NULL) {
+        fputs(ligne, fto);
     }
-
-    char* s = malloc(1000 * sizeof(char));
-
-    while(fgets(s, 1000, src) != NULL){
-        fputs(s, dest);
-    }
-
-    fclose(src);
-    fclose(dest);
-    free(s);
+    fclose(fto);
+    fclose(ffrom);
 }
 
 //这个函数的作用是将哈希值转换为对应的文件路径。它将一个哈希值作为输入，并将其分为两个部分：

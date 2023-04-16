@@ -1,10 +1,18 @@
 #include "branch.c"
 
+WorkFile* getWorkFile(WorkTree* wt, char* path) {
+    for (int i=0; i<wt->n; i++) {
+        WorkFile* wf = &wt->tab[i];
+        if (strcmp(wf->name, path) == 0) return wf;
+    }
+    return NULL;
+}
+
 WorkTree* mergeWorkTrees(WorkTree* wt1, WorkTree* wt2, List** conflicts){
     WorkTree *merged = initWorkTree();
     for (int i = 0; i < wt1->n; i++) {
         WorkFile *file = wt1->tab + i;
-        WorkFile *file2 = &(wt2 -> tab[inWorkTree(wt2, file->name)]);
+        WorkFile *file2 = getWorkFile(wt2, file->name);
         if (file2 == NULL) {
             appendWorkTree(merged, file->name, file->hash, file->mode);
         } 
@@ -19,7 +27,7 @@ WorkTree* mergeWorkTrees(WorkTree* wt1, WorkTree* wt2, List** conflicts){
     }
     for (int i = 0; i < wt2->n; i++) {
         WorkFile *file = wt2->tab + i;
-        WorkFile *file1 = &(wt1 -> tab[inWorkTree(wt1, file->name)]);
+        WorkFile *file1 = getWorkFile(wt1, file->name);
         if (file1 == NULL) {
             appendWorkTree(merged, file->name, file->hash, file->mode);
         }
@@ -44,9 +52,9 @@ List* merge(char* remote_branch, char* message) {
     char* remote_commit_hash = getRef(remote_branch);
     WorkTree* wt1 = getWorkTree(commit_hash);
     WorkTree* wt2 = getWorkTree(remote_commit_hash);
-    List* conflicts = NULL;
+    List* conflicts = initList();
     WorkTree* wt = mergeWorkTrees(wt1, wt2, &conflicts);
-    if (listSize(conflicts) == 0) {
+        if (listSize(conflicts) == 0) {
         char* hashwt = saveWorkTree(wt, ".");
         Commit* c = createCommit(hashwt);
         commitSet(c, "predecessor", commit_hash);

@@ -47,7 +47,8 @@ WorkFile* createWorkFile(char* name){
 //中间用制表符分隔。最后返回这个字符串的拷贝（为了防止被外部修改）。
 char* wfts(WorkFile* wf){
     char* str = malloc(1000 * sizeof(char));
-    sprintf(str, "%s\t%s\t%d", wf->name, wf->hash, wf->mode);
+    char* hash = wf->hash;
+    sprintf(str, "%s\t%s\t%d", wf->name, hash, wf->mode);
     char* res = malloc((strlen(str) + 1) * sizeof(char));
     strcpy(res, str);
     free(str);
@@ -269,7 +270,6 @@ char* blobWorkTree(WorkTree* wt){ // 答案
     
     strcat(ch, ".t");
     cp(ch, fname);
-    printf("blobWorkTree: %s\n", ch);
     return hash;
 }
 
@@ -376,6 +376,9 @@ char* saveWorkTree(WorkTree* wt, char* path){ // 答案
                 if(ptr -> data[0] == '.'){
                     continue;
                 }
+                if(fileExists(concat_paths(absPath, ptr -> data)) == 0){
+                    continue;
+                }
                 appendWorkTree(wt2, ptr -> data, NULL, 0);
                 wt -> tab[i].hash = saveWorkTree(wt2, absPath);
                 wt -> tab[i].mode = getChmod(absPath);
@@ -424,7 +427,7 @@ int isWorkTree(char* hash) { // 答案
 
 void restoreWorkTree(WorkTree* wt, char* path) { // 答案
   for (int i = 0; i < wt->n; i++) {
-    char* absPath = concat_paths(path, wt->tab[i].name);
+    char* absPath = concat_paths(path, hashToPath(wt->tab[i].hash));
     char* copyPath = hashToPath(wt->tab[i].hash);
     char* hash = wt->tab[i].hash;
     if (isWorkTree(hash) == 0) { // si c’est un fichier
