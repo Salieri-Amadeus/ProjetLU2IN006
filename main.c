@@ -1,4 +1,4 @@
-#include "branch.c"
+#include "fusion.c"
 
 // Projet 1
 // int main(){
@@ -121,6 +121,91 @@ int main(int argc, char* argv[]) {
     }
     else if(strcmp(argv[1], "checkout-commit") == 0) {
         myGitCheckoutCommit(argv[2]);
+    }
+    else if(strcmp(argv[1], "merge") == 0){
+        if(argc < 3){
+            printf("Usage: ./myGit merge <branch> <message>\n");
+            return 0;
+        }
+        char* message;
+        if(argc == 4){
+            message = argv[3];
+        }
+        else{
+            message = NULL;
+        }
+
+        if(!branchExists(argv[2])){
+            printf("The branch does not exist.\n");
+            return 0;
+        }
+
+        char* currentBranchHash = getRef(getCurrentBranch());
+        char* remoteBranchHash = getRef(argv[2]);
+        WorkTree* currentBranchTree = getWorkTree(currentBranchHash);
+        WorkTree* remoteBranchTree = getWorkTree(remoteBranchHash);
+        List* conflicts = initList();
+        WorkTree* mergedTree = mergeWorkTrees(currentBranchTree, remoteBranchTree, &conflicts);
+        if(listSize(conflicts) == 0){
+            merge(argv[2], message);
+            printf("Merge successful.\n");
+        }
+        else{
+            printf("Merge failed.\n");
+            printf("Conflicts:\n");
+            for(Cell* ptr = *conflicts; ptr != NULL; ptr = ptr->next){
+                printf("%s\n", ptr->data);
+            }
+            printf("1. Keep current branch files, delete target branch files.\n");
+            printf("2. Keep target branch files, delete current branch files.\n");
+            printf("3. Manually select files to keep.\n");
+
+            int choice;
+            scanf("%d", &choice);
+            if(choice == 1){
+                createDeletionCommit(argv[2], getCurrentBranch(), message);
+                merge(argv[2], message);
+            }
+            else if(choice == 2){
+                createDeletionCommit(getCurrentBranch(), argv[2], message);
+                merge(argv[2], message);
+            }
+            else if(choice == 3){
+                List* currentBranchConflict = initList();
+                List* remoteBranchConflict = initList();
+                List* tmpConflict = conflicts;
+                while(tmpConflict != NULL){
+                    char* file = (*tmpConflict)->data;
+                    printf("File: %s\n", file);
+                    printf("1. Keep current branch file.\n");
+                    printf("2. Keep target branch file.\n");
+                    int choice2;
+                    scanf("%d", &choice2);
+                    if(choice2 == 1){
+                        insertFirst(&currentBranchConflict, buildCell(file));
+                    }
+                    else if(choice2 == 2){
+                        insertFirst(&remoteBranchConflict, buildCell(file));
+                    }
+                    else{
+                        printf("Invalid choice.\n");
+                    }
+                }
+                if(listSize(currentBranchConflict) > 0){
+                    createDeletionCommit(getCurrentBranch(), currentBranchConflict, message);
+                }
+                if(listSize(remoteBranchConflict) > 0){
+                    createDeletionCommit(argv[2], remoteBranchConflict, message);
+                }
+                merge(argv[2], message);
+            }
+            else{
+                printf("Invalid choice.\n");
+            }
+        }
+        
+        
+
     }
 
     return 0;
